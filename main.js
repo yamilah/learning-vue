@@ -3,8 +3,8 @@ Vue.component('tabs', {
 	<div>
 		<div class="tabs">
 			<ul>
-				<li v-for="tab in tabs">
-					<a href="#">{{ tab.name }}</a>
+				<li v-for="tab in tabs" :class="{ 'is-active': tab.isActive }">
+					<a :href="tab.href" @click="selectTab(tab)">{{ tab.name }}</a>
 				</li>
 			</ul>
 		</div>
@@ -14,24 +14,49 @@ Vue.component('tabs', {
 		</div>
 	</div>
 	`,
-	data () {
+	data() {
 		return {
-			tabs: []
+			tabs: [],
 		};
 	},
 	created() {
 		this.tabs = this.$children;
+	},
+	methods: {
+		selectTab(selectedTab) {
+			this.tabs.forEach(tab => {
+				tab.isActive = (tab.name == selectedTab.name);
+			});
+		}
 	}
 });
 
 Vue.component('tab', {
 	template: `
-	<div><slot></slot></div>
+		<div v-show="isActive">
+			<slot></slot>
+		</div>
 	`,
 	props: {
 		name: {
 			required: true
+		},
+		selected: {
+			default: false
 		}
+	},
+	computed: {
+		href() {
+			return '#' + this.name.toLowerCase().replace(/ /g, '-');
+		}
+	},
+	data() {
+		return {
+			isActive: false
+		}
+	},
+	mounted() {
+		this.isActive = this.selected;
 	}
 });
 
